@@ -6,6 +6,8 @@ from time import time, sleep
 import pyautogui
 
 THRESHOLD = 0.99
+LIKE_THRESHOLD = 15
+LIKE_DAILY_THRESHOLD = 10000
 pyautogui.PAUSE = 0
 
 print("Press 's' to start auto-like")
@@ -35,18 +37,31 @@ size_ratio = x/scr.shape[1]
 #     if key in [27, ord('q'), ord('Q')]:
 #         cv2.destroyAllWindows()
 
+liked_count = 0
+liked_total_count = 0
+
 while True:
     scr = np.array(sct.grab(dimensions))
     scr_remove = scr[:, :, :3]
-    scr_remove[:, int(scr_remove.shape[1]*0.5):, :] = 0
+    scr_remove[:int(scr_remove.shape[1]*0.2), :, :] = 0
 
     result = cv2.matchTemplate(scr_remove, like_img, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
     yloc, xloc = np.where(result >= THRESHOLD)
     
-    if len(xloc) > 0:
+    if liked_total_count > LIKE_DAILY_THRESHOLD:
+        break
+    elif liked_count > LIKE_THRESHOLD:
+        sleep(120)
+        liked_count = 0  
+    elif len(xloc) > 0:
         pyautogui.click(x=int(xloc[0]*size_ratio), y=int(yloc[0]*size_ratio))
+        liked_count += 1
+        liked_total_count += 1
+    else:
+        pyautogui.press('right')
+        sleep(1)
 
     if keyboard.is_pressed('q'):
         break
