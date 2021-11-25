@@ -10,9 +10,9 @@ LIKE_THRESHOLD = 15
 LIKE_DAILY_THRESHOLD = 10000
 pyautogui.PAUSE = 0
 
-print("Press 's' to start auto-like")
+print("Press 'e' to start auto-like")
 print("Once started press 'q' to quit")
-keyboard.wait('s')
+keyboard.wait('e')
 x, y = pyautogui.size()
 sct = mss.mss()
 
@@ -43,7 +43,7 @@ liked_total_count = 0
 while True:
     scr = np.array(sct.grab(dimensions))
     scr_remove = scr[:, :, :3]
-    scr_remove[:int(scr_remove.shape[1]*0.2), :, :] = 0
+    scr_remove[:int(scr_remove.shape[1]*0.15), :, :] = 0
 
     result = cv2.matchTemplate(scr_remove, like_img, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
@@ -57,10 +57,12 @@ while True:
         liked_count = 0  
     elif len(xloc) > 0:
         pyautogui.click(x=int(xloc[0]*size_ratio), y=int(yloc[0]*size_ratio))
+        sleep(.5)
         liked_count += 1
         liked_total_count += 1
     else:
         pyautogui.press('right')
+        pyautogui.scroll(-20)
         sleep(1)
 
     if keyboard.is_pressed('q'):
